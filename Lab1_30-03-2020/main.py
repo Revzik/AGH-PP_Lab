@@ -191,7 +191,7 @@ def __main__():
             result = stevens_law()
             if result is not None:
                 results.append("Task 2 - Stevens law")
-                results.append(result)
+                results.append("dB: " + str(result) + "; abs: " + str(from_db(result)))
         elif ans == THREE:
             result = hearing_adaptation()
             if result is not None:

@@ -10,8 +10,12 @@ import numpy as np
 import sounddevice as sd
 
 
-def from_log(value):
+def from_db(value):
     return np.power(10, value / 20)
+
+
+def to_db(value):
+    return 20 * np.log10(value)
 
 
 class SoundGenerator:
@@ -24,11 +28,11 @@ class SoundGenerator:
     def sin(self, frequency=1000, duration=1, phase=0, volume=0):
         t = np.linspace(0, duration, duration * self.bitrate, False)
         tone = self.ramp(np.sin(2 * np.pi * frequency * t))
-        return tone * from_log(volume)
+        return tone * from_db(volume)
 
     def noise(self, duration=1, volume=0):
         noise = self.ramp(np.random.uniform(low=-1, high=1, size=int(duration * self.bitrate)))
-        return noise * from_log(volume)
+        return noise * from_db(volume)
 
     def ramp(self, data, duration=0.01):
         ramp_length = int(self.bitrate * duration)
