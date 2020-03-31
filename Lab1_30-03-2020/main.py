@@ -40,6 +40,12 @@ def intensity_discrimination():
     :return: Dict containing number of correct answers per each volume difference
     """
 
+    prompt = "This task checks your intensity discrimination. \n" \
+             "You will be played a series of two simple tones at 1kHz. First one is reference and the second has a different volume. \n" \
+             "Your task is to distinguish the differences in loudness. \n" \
+             "If you can hear the difference, confirm with \"y\" (yes), if not, type \"n\" (no)."
+    print(prompt)
+
     reference_volume = -3
     reference_tone = sg.sin(volume=reference_volume)
     silence = sg.silence(0.5)
@@ -70,7 +76,7 @@ def stevens_law_task(base_tone, volume):
         tone = sg.sin(3000, volume=volume)
         sg.play_mono(np.hstack((base_tone, tone)))
         while ans == NONE:
-            ans = validate_up_down(input("Louder or more quiet? (u/d/y): "))
+            ans = validate_loud_quiet(input("Louder or more quiet? (l/q/y): "))
             if ans == UP:
                 volume += 0.5
             elif ans == DOWN:
@@ -87,6 +93,13 @@ def stevens_law():
 
     :return: (float) Difference between sounds in decibels
     """
+
+    prompt = "This task checks Steven's law. \n" \
+             "You will be played two simple tones at 3kHz. \n" \
+             "Your task is to set the loudness of the second tone, so that it appears twice as loud or quiet than the first. \n" \
+             "Tone level can be changed using \"l\" (louder) and \"q\" (quieter). \n" \
+             "After you've set the level, confirm with \"y\"."
+    print(prompt)
 
     reference_volume = -9
     reference_tone = sg.sin(3000, volume=reference_volume)
@@ -127,6 +140,13 @@ def hearing_adaptation():
     :return: (float) Duration of the noise in seconds
     """
 
+    prompt = "This task checks your hearing adaptation. \n" \
+             "You will be played simple tone followed by louder noise and then simple tone once again. \n" \
+             "Your task is to set the duration of the noise, so that the second tone appears quieter than the first. \n" \
+             "Noise duration can be changed using \"l\" (longer) and \"s\" (shorter). \n" \
+             "After you've set the duration, confirm with \"y\"."
+    print(prompt)
+
     tone = sg.sin(volume=-6)
     silence = sg.silence(0.3)
 
@@ -149,6 +169,7 @@ def save_results(results):
             f.write(str(item) + "\n")
             if type(item) is not str or not item.startswith("Task"):
                 f.write("\n")
+    print("Task finished, results are in \"results.txt\" file.")
 
 
 def __main__():
@@ -178,5 +199,6 @@ def __main__():
                 results.append(result)
 
     save_results(results)
+
 
 __main__()

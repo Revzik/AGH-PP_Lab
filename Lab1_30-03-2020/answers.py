@@ -49,18 +49,18 @@ def validate_yes_no(answer):
         return NONE
 
 
-def validate_up_down(answer):
+def validate_loud_quiet(answer):
     if type(answer) is not str:
-        print("Invalid value, please provide with correct (u/d/y): ")
+        print("Invalid value, please provide with correct (l/q/y): ")
         return NONE
-    elif answer.lower() == "u" or answer.lower() == "up":
+    elif answer.lower() == "l" or answer.lower() == "louder":
         return UP
-    elif answer.lower() == "d" or answer.lower() == "down":
+    elif answer.lower() == "q" or answer.lower() == "quieter":
         return DOWN
     elif answer.lower() == "y" or answer.lower() == "yes":
         return YES
     else:
-        print("Invalid value, please provide with correct (u/d/y): ")
+        print("Invalid value, please provide with correct (l/q/y): ")
         return NONE
 
 
