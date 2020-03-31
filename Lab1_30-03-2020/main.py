@@ -40,7 +40,7 @@ def intensity_discrimination():
     :return: Dict containing number of correct answers per each volume difference
     """
 
-    prompt = "This task checks your intensity discrimination. \n" \
+    prompt = "\nThis task checks your intensity discrimination. \n" \
              "You will be played a series of two simple tones at 1kHz. First one is reference and the second has a different volume. \n" \
              "Your task is to distinguish the differences in loudness. \n" \
              "If you can hear the difference, confirm with \"y\" (yes), if not, type \"n\" (no)."
@@ -94,7 +94,7 @@ def stevens_law():
     :return: (float) Difference between sounds in decibels
     """
 
-    prompt = "This task checks Steven's law. \n" \
+    prompt = "\nThis task checks Steven's law. \n" \
              "You will be played two simple tones at 3kHz. \n" \
              "Your task is to set the loudness of the second tone, so that it appears twice as loud or quiet than the first. \n" \
              "Tone level can be changed using \"l\" (louder) and \"q\" (quieter). \n" \
@@ -140,7 +140,7 @@ def hearing_adaptation():
     :return: (float) Duration of the noise in seconds
     """
 
-    prompt = "This task checks your hearing adaptation. \n" \
+    prompt = "\nThis task checks your hearing adaptation. \n" \
              "You will be played simple tone followed by louder noise and then simple tone once again. \n" \
              "Your task is to set the duration of the noise, so that the second tone appears quieter than the first. \n" \
              "Noise duration can be changed using \"l\" (longer) and \"s\" (shorter). \n" \
@@ -169,7 +169,7 @@ def save_results(results):
             f.write(str(item) + "\n")
             if type(item) is not str or not item.startswith("Task"):
                 f.write("\n")
-    print("Task finished, results are in \"results.txt\" file.")
+    print("\nTask finished, results are in \"results.txt\" file.")
 
 
 def __main__():
