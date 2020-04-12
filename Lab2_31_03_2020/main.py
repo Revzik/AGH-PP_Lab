@@ -82,7 +82,7 @@ def const_stimuli():
 def one_up_two_down_task(reference_tone, reference_frequency):
     all_cents = []
     cents = 50
-    step = 10
+    step = 8
 
     # getting down to the first turning point
     ans = NONE
