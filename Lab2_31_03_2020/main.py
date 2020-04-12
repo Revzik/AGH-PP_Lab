@@ -80,6 +80,7 @@ def const_stimuli():
 
 
 def one_up_two_down_task(reference_tone, reference_frequency):
+    all_cents = []
     cents = 50
     step = 10
 
@@ -88,6 +89,7 @@ def one_up_two_down_task(reference_tone, reference_frequency):
     while ans != NO or cents < 0:
         ans = NONE
         sg.play_mono(np.hstack((reference_tone, sg.sin(frequency=change_pith(reference_frequency, cents)))))
+        all_cents.append(cents)
         logger.log_debug("frequency = " + str(change_pith(reference_frequency, cents)))
         while ans == NONE:
             ans = validate_yes_no(input('Did you hear difference in pitch? (y/n): '))
@@ -107,6 +109,7 @@ def one_up_two_down_task(reference_tone, reference_frequency):
     while turning_points < 16:
         ans = NONE
         sg.play_mono(np.hstack((reference_tone, sg.sin(frequency=change_pith(reference_frequency, cents)))))
+        all_cents.append(cents)
         prev_cents = cents
         logger.log_debug("frequency = " + str(change_pith(reference_frequency, cents)))
         logger.log_debug("next_down = " + str(next_down))
@@ -142,10 +145,7 @@ def one_up_two_down_task(reference_tone, reference_frequency):
         if cents <= 0:
             cents = 1
 
-    # accounting for last change
-    cents -= direction*step
-
-    return cents
+    return all_cents
 
 
 def one_up_two_down():
