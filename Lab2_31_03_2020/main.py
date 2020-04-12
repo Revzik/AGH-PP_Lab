@@ -58,11 +58,11 @@ def const_stimuli():
     reference_tone = sg.sin(frequency=reference_frequency, volume=0)
     silence = sg.silence(0.5)
 
-    pitches = {5: 0,
-               10: 0,
-               -15: 0,
-               20: 0,
-               -25: 0}
+    pitches = {2: 0,
+               -5: 0,
+               8: 0,
+               11: 0,
+               -14: 0}
 
     tones = []
     for pitch in pitches.keys():
