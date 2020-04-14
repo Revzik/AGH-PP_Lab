@@ -81,8 +81,9 @@ def const_stimuli():
 
 def one_up_two_down_task(reference_tone, reference_frequency):
     all_cents = []
+    all_turning_points = []
     cents = 50
-    step = 8
+    step = 6
 
     # getting down to the first turning point
     ans = NONE
@@ -96,6 +97,7 @@ def one_up_two_down_task(reference_tone, reference_frequency):
             if ans == YES:
                 cents -= step
             elif ans == NO:
+                all_turning_points.append(cents)
                 cents += step
 
     if cents <= 0:
@@ -134,18 +136,15 @@ def one_up_two_down_task(reference_tone, reference_frequency):
         if direction < 0 and cents > prev_cents or\
            direction > 0 and cents < prev_cents:
             turning_points += 1
+            all_turning_points.append(prev_cents)
             direction *= -1
             if turning_points == 4:
-                step = 5
-            elif turning_points == 8:
                 step = 3
-            elif turning_points == 12:
-                step = 1
 
         if cents <= 0:
             cents = 1
 
-    return all_cents
+    return {"all_cents: ": all_cents, "all_turning_points": all_turning_points}
 
 
 def one_up_two_down():
