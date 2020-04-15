@@ -1,6 +1,12 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 # wyniki Bartka
-plt.plot([50, 42, 34, 26, 18, 10, 2, 10, 10, 2, 10, 10, 2, 7, 12, 12, 7, 7, 2, 7, 7, 2, 2, 5, 8, 8, 5, 5, 8, 8, 5, 5, 6, 7, 7, 6, 6, 5, 5, 6, 7, 7], marker='.')
+cents_bartek = []
+turning_points_bartek = []
+threshold_bartek = np.mean(turning_points_bartek[-12:])
+
+plt.plot(cents_bartek, marker='.')
+plt.hlines(y=threshold_bartek, xmin=0, xmax=len(cents_bartek), linestyles='dashed')
 plt.grid()
 plt.show()

@@ -83,7 +83,7 @@ def one_up_two_down_task(reference_tone, reference_frequency):
     all_cents = []
     all_turning_points = []
     cents = 50
-    step = 6
+    step = 8
 
     # getting down to the first turning point
     ans = NONE
@@ -139,7 +139,7 @@ def one_up_two_down_task(reference_tone, reference_frequency):
             all_turning_points.append(prev_cents)
             direction *= -1
             if turning_points == 4:
-                step = 3
+                step = 4
 
         if cents <= 0:
             cents = 1
