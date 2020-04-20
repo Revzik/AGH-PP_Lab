@@ -30,33 +30,74 @@ log = Logger(logging_mode)
 sg = SoundGenerator(silent=args.silent)
 
 
-def interaural_level_difference_task(left, volume, step, step_change):
+def interaural_level_difference_task(reference_tone, reference_volume):
+    all_volume = []
+    all_turning_points = []
+    volume = reference_volume - 6
+    step = 1
+
+    # getting down to the first turning point
     ans = NONE
-    prev_ans = YES
-    while ans == NONE:
-        right = sg.sin(frequency=1000, duration=1, volume=volume)
-        sg.play_stereo(left, right)
-        while ans == NONE:
-            ans = validate_yes_no(input('Did you hear change in the sound direction ? (y/n): '))
-            if ans == NONE:
-                log.info('Invalid argument')
-            elif ans == prev_ans:
-                volume += step
-            else:
-                step *= -step_change
-        prev_ans = ans
+    while ans != NO and volume < reference_volume:
         ans = NONE
-    return
+        sg.play_stereo(np.hstack((reference_tone, sg.sin(volume=reference_volume))),
+                       np.hstack((reference_tone, sg.sin(volume=volume))))
+        all_volume.append(volume)
+        log.debug("volume = " + str(volume) + "dB, step = " + str(step) + "dB")
+        while ans == NONE:
+            ans = validate_yes_no(input('Did you hear the sound source move? (y/n): '))
+            if ans == YES:
+                volume += step
+            elif ans == NO:
+                all_turning_points.append(volume)
+                volume -= step
+
+    turning_points = 1
+    direction = 1
+    next_down = False
+
+    # counting next turning points using one up, two down method
+    while turning_points < 16:
+        ans = NONE
+        sg.play_stereo(np.hstack((reference_tone, sg.sin(volume=reference_volume))),
+                       np.hstack((reference_tone, sg.sin(volume=volume))))
+        all_volume.append(volume)
+        prev_volume = volume
+        log.debug("volume = " + str(volume) + "dB, step = " + str(step) + "dB")
+        log.debug("turning points = " + str(turning_points))
+        while ans == NONE:
+            ans = validate_yes_no(input('Did you hear difference in pitch? (y/n): '))
+
+            # if the user no longer hears the difference, the level difference should decrease
+            # if they begin to hear difference, we repeat the tone and then go down - that's what "next_down" does
+            if ans == YES:
+                if next_down:
+                    volume += step
+                    next_down = False
+                else:
+                    next_down = True
+            elif ans == NO:
+                volume -= step
+                next_down = False
+
+        # discriminating if there has been a change in direction
+        if direction > 0 and volume > prev_volume or \
+           direction < 0 and volume < prev_volume:
+            turning_points += 1
+            all_turning_points.append(prev_volume)
+            direction *= -1
+            if turning_points == 4:
+                step = 0.5
+
+        if volume >= reference_volume:
+            volume = reference_volume
+
+    return {"all volume": all_volume, "all turning points": all_turning_points}
 
 
 def interaural_level_difference():
-    step = -2
-    step_change = 0.3
-    volume = -6
-
-    left = sg.sin(frequency=1000, duration=1, volume=volume)
-
     volume = 0
+    reference = np.hstack((sg.sin(volume=volume), sg.silence(0.5)))
 
     ans = NONE
     while ans == NONE:
@@ -64,11 +105,85 @@ def interaural_level_difference():
         if ans == NO:
             return
         elif ans == YES:
-            return interaural_level_difference_task(left, volume, step, step_change)
+            return interaural_level_difference_task(reference, volume)
+
+
+def interaural_time_difference_task(reference_tone, reference_phase):
+    all_diff = []
+    all_turning_points = []
+    diff = reference_phase + 500
+    step = 50
+
+    # getting down to the first turning point
+    ans = NONE
+    while ans != NO or diff < reference_phase:
+        ans = NONE
+        sg.play_stereo(np.hstack((reference_tone, sg.sin(phase=reference_phase))),
+                       np.hstack((reference_tone, sg.sin(phase=diff, phase_unit='us'))))
+        all_diff.append(diff)
+        log.debug("diff = " + str(diff) + "us, step = " + str(step) + "us")
+        while ans == NONE:
+            ans = validate_yes_no(input('Did you hear the sound source move? (y/n): '))
+            if ans == YES:
+                diff -= step
+            elif ans == NO:
+                all_turning_points.append(diff)
+                diff += step
+
+    turning_points = 1
+    direction = 1
+    next_down = False
+
+    # counting next turning points using one up, two down method
+    while turning_points < 16:
+        ans = NONE
+        sg.play_stereo(np.hstack((reference_tone, sg.sin(phase=reference_phase))),
+                       np.hstack((reference_tone, sg.sin(phase=diff, phase_unit='us'))))
+        all_diff.append(diff)
+        prev_diff = diff
+        log.debug("diff = " + str(diff) + "us, step = " + str(step) + "us")
+        log.debug("turning points = " + str(turning_points))
+        while ans == NONE:
+            ans = validate_yes_no(input('Did you hear difference in pitch? (y/n): '))
+
+            # if the user no longer hears the difference, the time difference should decrease
+            # if they begin to hear difference, we repeat the tone and then go down - that's what "next_down" does
+            if ans == YES:
+                if next_down:
+                    diff -= step
+                    next_down = False
+                else:
+                    next_down = True
+            elif ans == NO:
+                diff += step
+                next_down = False
+
+        # discriminating if there has been a change in direction
+        if direction < 0 and diff > prev_diff or\
+           direction > 0 and diff < prev_diff:
+            turning_points += 1
+            all_turning_points.append(prev_diff)
+            direction *= -1
+            if turning_points == 4:
+                step = 25
+
+        if diff <= 0:
+            diff = 0
+
+    return {"all diff": all_diff, "all turning points": all_turning_points}
 
 
 def interaural_time_difference():
-    return ""
+    phase = 0
+    reference = np.hstack((sg.sin(phase=phase, phase_unit='us'), sg.silence(duration=0.5)))
+
+    ans = NONE
+    while ans == NONE:
+        ans = validate_yes_no(input("Are you ready to begin? (y/n): "))
+        if ans == NO:
+            return
+        elif ans == YES:
+            return interaural_time_difference_task(reference, phase)
 
 
 def binaural_frequency_discrimination():
@@ -102,17 +217,17 @@ def __main__():
         if ans == ONE:
             result = interaural_level_difference()
             if result is not None:
-                results.append("Task 1 - Intensity discrimination:")
+                results.append("Task 1 - Interaural Level Difference:")
                 results.append(result)
         elif ans == TWO:
             result = interaural_time_difference()
             if result is not None:
-                results.append("Task 2 - Stevens law")
-                results.append("dB: " + str(result) + "; abs: " + str(from_db(result)))
+                results.append("Task 2 - Interaural Time Difference")
+                results.append(result)
         elif ans == THREE:
             result = binaural_frequency_discrimination()
             if result is not None:
-                results.append("Task 3 - Hearing adaptation")
+                results.append("Task 3 - Binaural frequency discrimination")
                 results.append(result)
         elif ans == FOUR:
             result = binaural_beats()

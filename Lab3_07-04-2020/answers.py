@@ -23,7 +23,7 @@ SHORTER = 11
 
 def validate_tasks(answer):
     if type(answer) is not str:
-        print("Invalid value, please provide with correct (1/2/3): ")
+        print("Invalid value, please provide with correct (1/2/3/4/q): ")
         return NONE
     elif answer == "1":
         return ONE
@@ -34,7 +34,7 @@ def validate_tasks(answer):
     elif answer.lower() == "q" or answer.lower() == "quit":
         return QUIT
     else:
-        print("Invalid value, please provide with correct (1/2/3): ")
+        print("Invalid value, please provide with correct (1/2/3/4/q): ")
         return NONE
 
 

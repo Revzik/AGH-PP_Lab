@@ -30,9 +30,17 @@ class SoundGenerator:
     def silence(self, duration=1):
         return np.zeros(int(duration * self.bitrate))
 
-    def sin(self, frequency=1000, duration=1, phase=0, volume=0):
+    def sin(self, frequency=1000, duration=1, volume=0, phase=0, phase_unit='s'):
+        if phase_unit == 'ms':
+            phase = phase / 1000
+        elif phase_unit == 'us':
+            phase = phase / 1000000
+        elif phase_unit == 'rad':
+            phase = phase/frequency/2/np.pi
+        elif phase_unit == 'deg':
+            phase = phase/frequency
         t = np.linspace(0, duration, duration * self.bitrate, False)
-        tone = self.ramp(np.sin(2 * np.pi * frequency * t))
+        tone = self.ramp(np.sin(2 * np.pi * frequency * (t + phase)))
         return tone * from_db(volume)
 
     def noise(self, duration=1, volume=0):
