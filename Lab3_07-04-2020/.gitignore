@@ -155,3 +155,6 @@ results.txt
 
 .floo
 .flooignore
+
+# task-specific
+img/

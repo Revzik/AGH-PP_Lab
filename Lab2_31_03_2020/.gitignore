@@ -156,3 +156,6 @@ results.txt
 # floobits
 .floo
 .flooignore
+
+# task-specific
+img/
