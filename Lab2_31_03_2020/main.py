@@ -87,7 +87,7 @@ def one_up_two_down_task(reference_tone, reference_frequency):
 
     # getting down to the first turning point
     ans = NONE
-    while ans != NO and cents < 0:
+    while ans != NO or cents < 0:
         ans = NONE
         sg.play_mono(np.hstack((reference_tone, sg.sin(frequency=change_pith(reference_frequency, cents)))))
         all_cents.append(cents)
@@ -142,7 +142,7 @@ def one_up_two_down_task(reference_tone, reference_frequency):
                 step = 4
 
         if cents <= 0:
-            cents = 1
+            cents = 0
 
     return {"all_cents: ": all_cents, "all_turning_points": all_turning_points}
 
