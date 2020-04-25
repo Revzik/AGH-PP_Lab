@@ -191,7 +191,29 @@ def binaural_frequency_discrimination():
 
 
 def binaural_beats():
-    return ""
+    log.msg("If you want to change channel frequency, provide channel and it's frequency (l/r (0-1500))")
+    log.msg("If you want to repeat, provide \"rp\" or \"repeat\"")
+    log.msg("When you experienced binaural beats, provide \"q\" or \"quit\"")
+
+    f_left = 500.0
+    f_right = 500.0
+    duration = 5
+    ans = [NONE, 0]
+    while ans[0] != QUIT:
+        ans = [NONE, 0]
+        left = sg.sin(frequency=f_left, duration=duration)
+        right = sg.sin(frequency=f_right, duration=duration)
+        log.msg("Left frequency: " + str(f_left) + ", Right frequency: " + str(f_right))
+        sg.play_stereo(left, right)
+
+        while ans[0] == NONE:
+            ans = validate_channel_frequency(input("Provide new frequency (l/r/rp (0-1500)): "))
+            if len(ans) == 2 and ans[0] == LEFT:
+                f_left = ans[1]
+            elif len(ans) == 2 and ans[0] == RIGHT:
+                f_right = ans[1]
+
+    return "left: " + str(f_left) + "Hz, right: " + str(f_right) + "Hz"
 
 
 def save_results(results):

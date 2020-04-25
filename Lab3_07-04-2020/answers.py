@@ -18,7 +18,9 @@ UP = 8
 DOWN = 9
 LONGER = 10
 SHORTER = 11
-
+LEFT = 12
+RIGHT = 13
+REPEAT = 14
 
 
 def validate_tasks(answer):
@@ -31,6 +33,8 @@ def validate_tasks(answer):
         return TWO
     elif answer == "3":
         return THREE
+    elif answer == "4":
+        return FOUR
     elif answer.lower() == "q" or answer.lower() == "quit":
         return QUIT
     else:
@@ -79,3 +83,32 @@ def validate_longer_shorter(answer):
     else:
         print("Invalid value, please provide with correct (l/s/y): ")
         return NONE
+
+
+def validate_channel_frequency(answer):
+    if type(answer) is not str:
+        print("Invalid value, please provide with correct (l/r (0-1500)): ")
+        return [NONE, 0]
+    elif answer.lower() == "q" or answer.lower() == "quit":
+        return [QUIT, 0]
+    elif answer.lower() == "rp" or answer.lower() == "repeat":
+        return [REPEAT, 0]
+    values = answer.split(" ")
+    if len(values) == 2:
+        channel = values[0].lower()
+        try:
+            frequency = float(values[1])
+            if 0 < frequency < 1500:
+                if channel == "l" or channel == "left":
+                    return [LEFT, frequency]
+                elif channel == "r" or channel == "right":
+                    return [RIGHT, frequency]
+                else:
+                    print("Invalid channel provided (l/r (0-1500)): ")
+            else:
+                print("Invalid frequency (l/r (0-1500)): ")
+        except ValueError:
+            print("Invalid value, please provide with correct (l/r (0-1500)): ")
+    else:
+        print("Invalid value, please provide with correct (l/r (0-1500)): ")
+    return [NONE, 0]

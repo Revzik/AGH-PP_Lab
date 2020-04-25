@@ -1,5 +1,5 @@
-#Loudness Perception
-Lab1\
+#Spatial hearing - interaural parameters
+Lab3\
 _07.04.2020_
 
 Authors:\
