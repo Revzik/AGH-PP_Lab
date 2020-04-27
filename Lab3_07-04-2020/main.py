@@ -186,8 +186,88 @@ def interaural_time_difference():
             return interaural_time_difference_task(reference, phase)
 
 
+def binaural_frequency_discrimination_task(reference_tone, reference_frequency):
+    all_cents = []
+    all_turning_points = []
+    cents = 50
+    step = 8
+
+    # getting down to the first turning point
+    ans = NONE
+    while ans != NO or cents < 0:
+        ans = NONE
+        sg.play_stereo(np.hstack((reference_tone, sg.sin(frequency=reference_frequency))),
+                       np.hstack((reference_tone, sg.sin(change_pith(reference_frequency, cents)))))
+        all_cents.append(cents)
+        log.debug("frequency = " + str(change_pith(reference_frequency, cents)))
+        while ans == NONE:
+            ans = validate_yes_no(input('Did you hear difference in pitch? (y/n): '))
+            if ans == YES:
+                cents -= step
+            elif ans == NO:
+                all_turning_points.append(cents)
+                cents += step
+
+    if cents <= 0:
+        cents = 0
+
+    turning_points = 1
+    direction = 1
+    next_down = False
+
+    # counting next turning points using one up, two down method
+    while turning_points < 16:
+        ans = NONE
+        sg.play_stereo(np.hstack((reference_tone, sg.sin(frequency=reference_frequency))),
+                       np.hstack((reference_tone, sg.sin(change_pith(reference_frequency, cents)))))
+        all_cents.append(cents)
+        prev_cents = cents
+        log.debug("frequency = " + str(change_pith(reference_frequency, cents)))
+        log.debug("next_down = " + str(next_down))
+        log.debug("step = " + str(step) + ", turning_points = " + str(turning_points))
+
+        while ans == NONE:
+            ans = validate_yes_no(input('Did you hear difference in pitch? (y/n): '))
+
+            # if the user no longer hears the difference, the frequency should immediately go higher
+            # if he begins to hear difference, we repeat the tone and then go down - that's what "next_down" does
+            if ans == YES:
+                if next_down:
+                    cents -= step
+                    next_down = False
+                else:
+                    next_down = True
+            elif ans == NO:
+                cents += step
+                next_down = False
+
+        # discriminating if there has been a change in direction
+        if direction < 0 and cents > prev_cents or\
+           direction > 0 and cents < prev_cents:
+            turning_points += 1
+            all_turning_points.append(prev_cents)
+            direction *= -1
+            if turning_points == 4:
+                step = 4
+
+        if cents <= 0:
+            cents = 0
+
+    return {"all_cents: ": all_cents, "all_turning_points": all_turning_points}
+
 def binaural_frequency_discrimination():
-    return ""
+    frequency = 1000
+    reference = np.hstack((sg.sin(frequency=frequency), sg.silence(duration=0.5)))
+
+    ans = NONE
+    while ans == NONE:
+        ans = validate_yes_no(input("Are you ready to begin? (y/n): "))
+        if ans == NO:
+            return
+        elif ans == YES:
+            return binaural_frequency_discrimination_task(reference, frequency)
+
+
 
 
 def binaural_beats():
