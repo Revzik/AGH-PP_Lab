@@ -1,3 +1,12 @@
+"""
+Message handler for the scripts
+
+Authors:
+ Bartłomiej Piekarz
+ Daniel Tańcula
+"""
+
+
 class Logger:
 
     DEBUG = 0

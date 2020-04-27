@@ -1,6 +1,8 @@
 """
-Script for Practical Psychoacoustics
-Tasks 1-3 from 24.03.2020 - 31.03.2020 week
+Practical Psychoacoustics
+Lab3 Spatial hearing - interaural parameters
+Tasks 1-4
+7.04.2020
 
 Authors:
  Bartłomiej Piekarz
@@ -96,6 +98,11 @@ def interaural_level_difference_task(reference_tone, reference_volume):
 
 
 def interaural_level_difference():
+    prompt = "You will be played two stereo tones separated by half a second of silence. " + \
+             "First one will be the reference, and second one will have a difference in level between left and right channel" + \
+             "You will have to answer whether you or not you hear the sound source change its position" + \
+             "by providing \"y\" for yes or \"n\" for no."
+    log.msg(prompt)
     volume = 0
     reference = np.hstack((sg.sin(volume=volume), sg.silence(0.5)))
 
@@ -174,6 +181,12 @@ def interaural_time_difference_task(reference_tone, reference_phase):
 
 
 def interaural_time_difference():
+    prompt = "You will be played two stereo tones separated by half a second of silence. " + \
+             "First one will be the reference, and second one will have a difference in phase between left and right channel" + \
+             "You will have to answer whether you or not you hear the sound source change its position" + \
+             "by providing \"y\" for yes or \"n\" for no."
+    log.msg(prompt)
+
     phase = 0
     reference = np.hstack((sg.sin(phase=phase, phase_unit='us'), sg.silence(duration=0.5)))
 
@@ -255,7 +268,13 @@ def binaural_frequency_discrimination_task(reference_tone, reference_frequency):
 
     return {"all_cents: ": all_cents, "all_turning_points": all_turning_points}
 
+
 def binaural_frequency_discrimination():
+    prompt = "You will be played two stereo tones separated by half a second of silence. " + \
+             "First one will be the reference, and second one will have a difference in pitch between left and right channel" + \
+             "You will have to answer whether you hear the difference or not by providing \"y\" for yes or \"n\" for no."
+    log.msg(prompt)
+
     frequency = 1000
     reference = np.hstack((sg.sin(frequency=frequency), sg.silence(duration=0.5)))
 
@@ -271,9 +290,10 @@ def binaural_frequency_discrimination():
 
 
 def binaural_beats():
-    log.msg("If you want to change channel frequency, provide channel and it's frequency (l/r (0-1500))")
-    log.msg("If you want to repeat, provide \"rp\" or \"repeat\"")
-    log.msg("When you experienced binaural beats, provide \"q\" or \"quit\"")
+    prompt = "If you want to change channel frequency, provide channel and it's frequency (l/r (0-1500))" + \
+             "If you want to repeat, provide \"rp\" or \"repeat\"" + \
+             "When you experienced binaural beats, provide \"q\" or \"quit\""
+    log.msg(prompt)
 
     f_left = 500.0
     f_right = 500.0
