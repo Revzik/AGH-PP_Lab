@@ -23,6 +23,16 @@ def change_pith(value, arg):
     return value * (2 ** (arg/1200))
 
 
+def normalize(data):
+    return normalize_to(data, volume=0)
+
+
+def normalize_to(data, volume=0):
+    factor = np.max(np.abs([np.max(data), np.min(data)]))
+    factor *= from_db(volume)
+    return data / factor
+
+
 class SoundGenerator:
     def __init__(self, bitrate=8000, silent=False):
         self.bitrate = bitrate
@@ -30,6 +40,15 @@ class SoundGenerator:
 
     def silence(self, duration=1):
         return np.zeros(int(duration * self.bitrate))
+
+    def hct(self, frequency=1000, duration=1, volume=0, phase=0, phase_unit='s', harmonics=None):
+        if harmonics is None:
+            harmonics = [1]
+        tone = np.linspace(0, 0, duration * self.bitrate, False)
+        for harmonic in harmonics:
+            tone += sin(frequency=frequency*harmonic, duration=duration,
+                        volume=volume, phase=phase, phase_unit=phase_unit)
+        return normalize_to(tone, volume)
 
     def sin(self, frequency=1000, duration=1, volume=0, phase=0, phase_unit='s'):
         if phase_unit == 'ms':

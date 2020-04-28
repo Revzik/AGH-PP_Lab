@@ -7,6 +7,7 @@ Authors:
  Tomasz Piaseczny
 """
 
+
 QUIT = 0
 ONE = 1
 TWO = 2
@@ -19,7 +20,6 @@ UP = 8
 DOWN = 9
 LONGER = 10
 SHORTER = 11
-
 
 
 def validate_tasks(answer):
