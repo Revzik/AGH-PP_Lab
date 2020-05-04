@@ -29,26 +29,25 @@ if args.debug:
     logging_mode = Logger.DEBUG
 log = Logger(logging_mode)
 
-sg = SoundGenerator(silent=args.silent)
+sg = SoundGenerator(silent=args.silent, bitrate=44100)
 
 
-def percieved_pitch_task(reference_frequency,hct,duration):
+def percieved_pitch_task(reference_frequency,duration,harmonics):
 
     all_cents = []
     all_turning_points = []
     cents = 0
     step = 8
-    simple_tone = sg.sin(frequency=reference_frequency,duration=duration)
-    hct = sg.hct(frequency=reference_frequency,duration=duration)
+    answer = ""
     # getting down to the first turning point
     ans = NONE
     while ans != NO or cents < 0:
         ans = NONE
-        sg.play_mono(np.hstack((sg.sin(frequency=,duration=duration),sg.silence(duration=0.5), sg.hct(frequency=reference_frequency,duration=duration))))
+        sg.play_mono(np.hstack((sg.sin(frequency=change_pith(reference_frequency,cents),duration=duration),sg.silence(duration=0.5), sg.hct(frequency=reference_frequency,duration=duration,harmonics=harmonics))))
         all_cents.append(cents)
         log.debug("frequency = " + str(change_pith(reference_frequency, cents)))
         while ans == NONE:
-            ans = validate_yes_no(input('Did you hear difference in pitch? (y/n): '))
+            ans = validate_yes_no(input('Are the tones equal in frequency or the first tone is higher? (y/n): '))
             if ans == YES:
                 cents -= step
             elif ans == NO:
@@ -65,7 +64,7 @@ def percieved_pitch_task(reference_frequency,hct,duration):
     # counting next turning points using one up, two down method
     while turning_points < 16:
         ans = NONE
-        sg.play_mono(np.hstack((simple_tone_tone, hct)))
+        sg.play_mono(np.hstack((sg.sin(frequency=change_pith(reference_frequency,cents),duration=duration),sg.silence(duration=0.5), sg.hct(frequency=reference_frequency,duration=duration,harmonics=harmonics))))
         all_cents.append(cents)
         prev_cents = cents
         log.debug("frequency = " + str(change_pith(reference_frequency, cents)))
@@ -73,13 +72,13 @@ def percieved_pitch_task(reference_frequency,hct,duration):
         log.debug("step = " + str(step) + ", turning_points = " + str(turning_points))
 
         while ans == NONE:
-            ans = validate_yes_no(input('Did you hear difference in pitch? (y/n): '))
+            ans = validate_yes_no(input('Are the tones equal in frequency or the first tone is higher? (y/n): '))
 
             # if the user no longer hears the difference, the frequency should immediately go higher
             # if he begins to hear difference, we repeat the tone and then go down - that's what "next_down" does
             if ans == YES:
                 if next_down:
-                    cents -= step
+                    cents += step
                     next_down = False
                 else:
                     next_down = True
@@ -99,7 +98,15 @@ def percieved_pitch_task(reference_frequency,hct,duration):
         if cents <= 0:
             cents = 0
 
-    return {"all_cents: ": all_cents, "all_turning_points": all_turning_points}
+    if turning_points == 16:
+        random1 = 1
+        random2 = 2
+        harmonics.remove(random1)
+        harmonics.remove(random2)
+        return answer
+
+    return {"all_cents: ": all_cents, "all_turning_points": all_turning_points, "Does the pitch change": answer}
+
 
 def percieved_pitch():
 
@@ -108,13 +115,9 @@ def percieved_pitch():
     harmonics = [1, 2, 3, 4, 5]
 
 
-    prompt = "You will be played two stereo tones separated by half a second of silence. " + \
-             "First one will be the reference, and second one will have a difference in pitch between left and right channel" + \
-             "You will have to answer whether you hear the difference or not by providing \"y\" for yes or \"n\" for no."
+    prompt = "You will be played simple tone and Harmonic Complex Tone separated by half a second of silence. " + \
+             "You will have to answer whether you hear the difference in pitch or not by providing \"y\" for yes or \"n\" for no."
     log.msg(prompt)
-
-    frequency = 1000
-    reference = np.hstack((sg.sin(frequency=frequency), sg.silence(duration=0.5)))
 
     ans = NONE
     while ans == NONE:
@@ -122,8 +125,7 @@ def percieved_pitch():
         if ans == NO:
             return
         elif ans == YES:
-            return percieved_pitch_task(reference_frequency,duration)
-
+            return percieved_pitch_task(reference_frequency,duration,harmonics)
 
 
 def perceived_loudness_task(reference_hct, reference_volume, frequency, duration):
@@ -131,6 +133,8 @@ def perceived_loudness_task(reference_hct, reference_volume, frequency, duration
     all_turning_points = []
     volume = reference_volume
     step = 1
+
+    log.debug("hct amplitude = {:3f} - {:3f}".format(np.min(reference_hct), np.max(reference_hct)))
 
     # getting down to the first turning point
     ans = NONE
@@ -140,7 +144,7 @@ def perceived_loudness_task(reference_hct, reference_volume, frequency, duration
         all_volume.append(volume)
         log.debug("volume difference = " + str(np.abs(volume - reference_volume)))
         while ans == NONE:
-            ans = validate_yes_no(input('Are the sounds equal in volume? (y/n): '))
+            ans = validate_yes_no(input('Are the sounds equal in volume or the first one is louder? (y/n): '))
             if ans == YES:
                 volume -= step
             elif ans == NO:
@@ -157,14 +161,14 @@ def perceived_loudness_task(reference_hct, reference_volume, frequency, duration
         sg.play_mono(np.hstack((sg.sin(frequency=frequency, duration=duration, volume=volume), reference_hct)))
         all_volume.append(volume)
         prev_volume = volume
-        log.debug("frequency = " + str(change_pith(reference_frequency, volume)))
+        log.debug("volume difference = " + str(np.abs(volume - reference_volume)))
         log.debug("next_down = " + str(next_down))
         log.debug("step = " + str(step) + ", turning_points = " + str(turning_points))
 
         while ans == NONE:
-            ans = validate_yes_no(input('Did you hear difference in pitch? (y/n): '))
+            ans = validate_yes_no(input('Are the sounds equal in volume or the first one is louder? (y/n): '))
 
-            # if the user no longer hears the difference, the frequency should immediately go higher
+            # if the user no longer hears the difference, the volume should immediately go lower
             # if he begins to hear difference, we repeat the tone and then go down - that's what "next_down" does
             if ans == YES:
                 if next_down:
@@ -183,10 +187,7 @@ def perceived_loudness_task(reference_hct, reference_volume, frequency, duration
             all_turning_points.append(prev_volume)
             direction *= -1
             if turning_points == 4:
-                step = 4
-
-        if volume <= 0:
-            volume = 0
+                step = 0.5
 
     return {"all_volume: ": all_volume, "all_turning_points": all_turning_points}
 
@@ -218,6 +219,9 @@ def residual_pitch():
 
     silence = sg.silence(duration=0.5)
     hct = sg.hct(frequency=frequency, duration=duration, volume=volume, harmonics=harmonics)
+    sg.play_mono(np.hstack((sg.sin(frequency=frequency, duration=duration),
+                            sg.silence(duration=0.5),
+                            sg.hct(frequency=frequency, duration=duration, harmonics=harmonics))))
 
 
 
@@ -233,10 +237,29 @@ def save_results(results):
 
 def __main__():
     results = []
-    prompt = "To quit provide \"q\": "
+    prompt = "Which task would you like to perform: \n" \
+             " 1 - Perceived pitch \n" \
+             " 2 - Perceived loudness \n" \
+             " 3 - Residual pitch \n" \
+             "To quit provide \"q\": "
     ans = NONE
     while ans != QUIT:
         ans = validate_tasks(input(prompt))
+        if ans == ONE:
+            result = percieved_pitch()
+            if result is not None:
+                results.append("Task 1 - Perceived pitch:")
+                results.append(result)
+        elif ans == TWO:
+            result = perceived_loudness()
+            if result is not None:
+                results.append("Task 2 - Perceived loudness")
+                results.append(result)
+        elif ans == THREE:
+            result = residual_pitch()
+            if result is not None:
+                results.append("Task 3 - Residual pitch")
+                results.append(result)
 
     save_results(results)
 

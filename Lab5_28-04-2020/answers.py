@@ -35,7 +35,7 @@ def validate_tasks(answer):
     elif answer.lower() == "q" or answer.lower() == "quit":
         return QUIT
     else:
-        print("Invalid value, please provide with correct (1/2/3/4/q): ")
+        print("Invalid value, please provide with correct (1/2/3/q): ")
         return NONE
 
 

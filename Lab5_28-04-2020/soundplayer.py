@@ -29,7 +29,7 @@ def normalize(data):
 
 def normalize_to(data, volume=0):
     factor = np.max(np.abs([np.max(data), np.min(data)]))
-    factor *= from_db(volume)
+    factor /= from_db(volume)
     return data / factor
 
 
@@ -46,8 +46,8 @@ class SoundGenerator:
             harmonics = [1]
         tone = np.linspace(0, 0, duration * self.bitrate, False)
         for harmonic in harmonics:
-            tone += sin(frequency=frequency*harmonic, duration=duration,
-                        volume=volume, phase=phase, phase_unit=phase_unit)
+            tone += self.sin(frequency=frequency*harmonic, duration=duration,
+                             volume=volume - 6*harmonic, phase=phase, phase_unit=phase_unit)
         return normalize_to(tone, volume)
 
     def sin(self, frequency=1000, duration=1, volume=0, phase=0, phase_unit='s'):
