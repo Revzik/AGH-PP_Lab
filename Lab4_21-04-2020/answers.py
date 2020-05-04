@@ -4,78 +4,90 @@ Answer validation + enums
 Authors:
  Bartłomiej Piekarz
  Daniel Tańcula
+ Tomasz Piaseczny
 """
 
-QUIT = 0
-ONE = 1
-TWO = 2
-THREE = 3
-FOUR = 4
-YES = 5
-NO = 6
-NONE = 7
-UP = 8
-DOWN = 9
-LONGER = 10
-SHORTER = 11
+from enum import Enum, auto
 
 
-
-def validate_tasks(answer):
+def validate_tasks(message):
+    answer = input(message)
     if type(answer) is not str:
         print("Invalid value, please provide with correct (1/2/3/4/q): ")
-        return NONE
+        return Answers.NONE
     elif answer == "1":
-        return ONE
+        return Answers.ONE
     elif answer == "2":
-        return TWO
+        return Answers.TWO
     elif answer == "3":
-        return THREE
+        return Answers.THREE
     elif answer.lower() == "q" or answer.lower() == "quit":
-        return QUIT
+        return Answers.QUIT
     else:
-        print("Invalid value, please provide with correct (1/2/3/4/q): ")
-        return NONE
+        print("Invalid value, please provide with correct (1/2/3/q): ")
+        return Answers.NONE
 
 
-def validate_yes_no(answer):
+def validate_yes_no(message):
+    answer = input(message)
     if type(answer) is not str:
         print("Invalid value, please provide with correct (y/n): ")
-        return NONE
+        return Answers.NONE
     elif answer.lower() == "n" or answer.lower() == "no":
-        return NO
+        return Answers.NO
     elif answer.lower() == "y" or answer.lower() == "yes":
-        return YES
+        return Answers.YES
     else:
         print("Invalid value, please provide with correct (y/n): ")
-        return NONE
+        return Answers.NONE
 
 
-def validate_loud_quiet(answer):
+def validate_loud_quiet(message):
+    answer = input(message)
     if type(answer) is not str:
         print("Invalid value, please provide with correct (l/q/y): ")
-        return NONE
+        return Answers.NONE
     elif answer.lower() == "l" or answer.lower() == "louder":
-        return UP
+        return Answers.UP
     elif answer.lower() == "q" or answer.lower() == "quieter":
-        return DOWN
+        return Answers.DOWN
     elif answer.lower() == "y" or answer.lower() == "yes":
-        return YES
+        return Answers.YES
     else:
         print("Invalid value, please provide with correct (l/q/y): ")
-        return NONE
+        return Answers.NONE
 
 
-def validate_longer_shorter(answer):
+def validate_longer_shorter(message):
+    answer = input(message)
     if type(answer) is not str:
         print("Invalid value, please provide with correct (l/s/y): ")
-        return NONE
+        return Answers.NONE
     elif answer.lower() == "l" or answer.lower() == "longer":
-        return LONGER
+        return Answers.LONGER
     elif answer.lower() == "s" or answer.lower() == "shorter":
-        return SHORTER
+        return Answers.SHORTER
     elif answer.lower() == "y" or answer.lower() == "yes":
-        return YES
+        return Answers.YES
     else:
         print("Invalid value, please provide with correct (l/s/y): ")
-        return NONE
+        return Answers.NONE
+
+
+def empty(message):
+    input(message)
+
+
+class Answers(Enum):
+    QUIT = auto()
+    ONE = auto()
+    TWO = auto()
+    THREE = auto()
+    FOUR = auto()
+    YES = auto()
+    NO = auto()
+    NONE = auto()
+    UP = auto()
+    DOWN = auto()
+    LONGER = auto()
+    SHORTER = auto()

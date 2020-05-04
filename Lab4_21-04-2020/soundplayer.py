@@ -4,9 +4,11 @@ Framework class + methods for generating tones on PP course.
 Authors:
  Bartłomiej Piekarz
  Daniel Tańcula
+ Tomasz Piaseczny
 """
 
 import numpy as np
+from scipy import signal as sgn
 import sounddevice as sd
 
 
@@ -39,13 +41,17 @@ class SoundGenerator:
             phase = phase/frequency/2/np.pi
         elif phase_unit == 'deg':
             phase = phase/frequency
-        t = np.linspace(0, duration, duration * self.bitrate, False)
+        t = np.linspace(0, duration, int(duration * self.bitrate), False)
         tone = self.ramp(np.sin(2 * np.pi * frequency * (t + phase)))
         return tone * from_db(volume)
 
     def noise(self, duration=1, volume=0):
         noise = self.ramp(np.random.uniform(low=-1, high=1, size=int(duration * self.bitrate)))
         return noise * from_db(volume)
+
+    def bandpas(self, data, low, high):
+        sos = sgn.butter(2, [low, high], btype='bandpass', output='sos', fs=self.bitrate)
+        return sgn.sosfilt(sos, data)
 
     def ramp(self, data, duration=0.01):
         ramp_length = int(self.bitrate * duration)
