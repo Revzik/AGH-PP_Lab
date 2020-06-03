@@ -37,11 +37,11 @@ def percieved_pitch_task(reference_frequency,duration,harmonics):
     all_cents = []
     all_turning_points = []
     cents = 0
-    step = 8
+    step = 6
     answer = ""
     # getting down to the first turning point
     ans = NONE
-    while ans != NO or cents < 0:
+    while ans != YES or cents < 0:
         ans = NONE
         sg.play_mono(np.hstack((sg.sin(frequency=change_pith(reference_frequency,cents),duration=duration),sg.silence(duration=0.5), sg.hct(frequency=reference_frequency,duration=duration,harmonics=harmonics))))
         all_cents.append(cents)
@@ -49,9 +49,9 @@ def percieved_pitch_task(reference_frequency,duration,harmonics):
         while ans == NONE:
             ans = validate_yes_no(input('Are the tones equal in frequency or the first tone is higher? (y/n): '))
             if ans == YES:
+                all_turning_points.append(cents)
                 cents -= step
             elif ans == NO:
-                all_turning_points.append(cents)
                 cents += step
 
     if cents <= 0:
@@ -78,7 +78,7 @@ def percieved_pitch_task(reference_frequency,duration,harmonics):
             # if he begins to hear difference, we repeat the tone and then go down - that's what "next_down" does
             if ans == YES:
                 if next_down:
-                    cents += step
+                    cents -= step
                     next_down = False
                 else:
                     next_down = True
@@ -93,17 +93,17 @@ def percieved_pitch_task(reference_frequency,duration,harmonics):
             all_turning_points.append(prev_cents)
             direction *= -1
             if turning_points == 4:
-                step = 4
+                step = 3
 
         if cents <= 0:
             cents = 0
 
-    if turning_points == 16:
-        random1 = 1
-        random2 = 2
-        harmonics.remove(random1)
-        harmonics.remove(random2)
-        return answer
+    original = sg.hct(frequency=reference_frequency, duration=duration, harmonics=harmonics)
+    harmonics.remove(np.random.randint(1, len(harmonics)))
+    harmonics.remove(np.random.randint(1, len(harmonics)))
+    without_harmonics = sg.hct(frequency=reference_frequency, duration=duration, harmonics=harmonics)
+    sg.play_mono(np.hstack((original, sg.silence(duration=0.5), without_harmonics)))
+    answer = validate_yes_no(input("Is second tone pitch different from first?"))
 
     return {"all_cents: ": all_cents, "all_turning_points": all_turning_points, "Does the pitch change": answer}
 
