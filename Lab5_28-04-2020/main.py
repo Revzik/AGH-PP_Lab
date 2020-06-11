@@ -105,7 +105,7 @@ def percieved_pitch_task(reference_frequency,duration,harmonics):
     sg.play_mono(np.hstack((original, sg.silence(duration=0.5), without_harmonics)))
     answer = validate_yes_no(input("Is second tone pitch different from first?"))
 
-    return {"all_cents: ": all_cents, "all_turning_points": all_turning_points, "Does the pitch change": answer}
+    return {"all_cents: ": all_cents, "all_turning_points": all_turning_points, "Does the pitch change": answer == YES}
 
 
 def percieved_pitch():
@@ -136,7 +136,7 @@ def perceived_loudness_task(reference_hct, reference_volume, frequency, duration
 
     # getting down to the first turning point
     ans = NONE
-    while ans != YES or volume < 0:
+    while ans != YES and volume < 0:
         ans = NONE
         sg.play_mono(np.hstack((sg.sin(frequency=frequency, duration=duration, volume=volume), reference_hct)))
         all_volume.append(volume)
@@ -217,28 +217,44 @@ def residual_pitch():
     frequency = 1000
     duration = 2
     volume = -6
-    harmonics = [1, 2, 3, 4, 5]
+    original_harmonics = [1, 2, 3, 4, 5]
+    harmonics = [2, 3, 4, 5]
 
     prompt = "You will be played two Harmonic Complex Tones separated by half a second of silence." + \
              "The second tone will be played without its fundamental frequency." + \
              "You will have to answer whether you hear the difference in pitch or not by providing \"y\" for yes or \"n\" for no."
     log.msg(prompt)
 
+    ans = NONE
+    while ans == NONE:
+        ans = validate_yes_no(input("Are you ready to begin? (y/n): "))
+        if ans == NO:
+            return
+
     silence = sg.silence(duration=0.5)
 
     ans = NONE
+    sg.play_mono(np.hstack((sg.hct(frequency=frequency, duration=duration, volume=volume, harmonics=original_harmonics),
+                            silence,
+                            sg.hct(frequency=frequency, duration=duration, volume=volume, harmonics=harmonics))))
+    while ans == NONE:
+        ans = validate_yes_no(input('Do you hear difference in pitch? (y/n): '))
+        if ans == NO:
+            return {"Difference perceived": False}
+
     for i in range(len(harmonics) - 1):
-        sg.play_mono(np.hstack((sg.hct(frequency=frequency, duration=duration, volume=volume, harmonics=harmonics),
+        ans = NONE
+        sg.play_mono(np.hstack((sg.hct(frequency=frequency, duration=duration, volume=volume, harmonics=original_harmonics),
                                 silence,
-                                sg.hct(frequency=frequency, duration=duration, volume=volume, harmonics=harmonics[1:]))))
+                                sg.hct(frequency=frequency, duration=duration, volume=volume, harmonics=harmonics))))
         while ans == NONE:
-            ans = validate_yes_no(input('Are the sounds equal in pitch? (y/n): '))
+            ans = validate_yes_no(input('Can you hear residual pitch? (y/n): '))
             if ans == YES:
-                return {"harmonics": harmonics}
+                return {"Difference perceived": True, "Residual pitch perceived": True, "harmonics": harmonics}
             elif ans == NO:
                 harmonics.pop(len(harmonics) - 1)
 
-    return "No difference perceived"
+    return {"Difference perceived": True, "Residual pitch perceived": False}
 
 
 def save_results(results):
